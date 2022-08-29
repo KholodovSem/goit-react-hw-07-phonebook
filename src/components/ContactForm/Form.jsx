@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
+import { ToastContainer, toast } from 'react-toastify';
+import { useAddContactMutation, useGetContactsQuery } from '../../store/contacts';
 import style from './Form.module.css';
-import { addContact } from '../../store/contactsSlice';
-import { useDispatch } from 'react-redux';
+import 'react-toastify/dist/ReactToastify.css';
 
 function AddContactForm() {
+  const { data } = useGetContactsQuery();
+  const [addContact] = useAddContactMutation();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.currentTarget;
@@ -30,17 +31,19 @@ function AddContactForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { name, number } = e.currentTarget;
-    const id = nanoid();
     const nameContact = name.value;
     const phoneNumber = number.value;
     const contact = {
-      id: id,
       name: nameContact,
-      number: phoneNumber,
+      phone: phoneNumber,
     };
 
+    if (data.find(({ name }) => name.toLowerCase() === nameContact.toLowerCase())) {
+      return toast.error(`You already have ${nameContact} in your contacts book`);
+    }
 
-    dispatch(addContact(contact));
+    addContact(contact);
+    toast.success(`${nameContact} is successfully added to your contacts book`);
     updateState();
   };
 
@@ -49,8 +52,7 @@ function AddContactForm() {
     setNumber('');
   };
   return (
-    <form onSubmit={handleSubmit} className={style.form}>
-
+    <form onSubmit={(e) => handleSubmit(e)} className={style.form}>
       <label className={style.label}>
         <p className={style.text}>Name</p>
         <input
@@ -76,6 +78,7 @@ function AddContactForm() {
         />
       </label>
       <button type='submit' className={style.button}>Send</button>
+      <ToastContainer />
     </form>
   );
 }

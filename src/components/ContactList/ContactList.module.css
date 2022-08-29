@@ -29,10 +29,17 @@ ul {
 }
 
 .button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   border-radius: 7px;
   border: 1px solid darkgrey;
   cursor: pointer;
   background-color: white;
+
+  min-width: 103px;
+  padding: 0 10px;
 
   transition: transform 250ms linear 0ms;
 }
